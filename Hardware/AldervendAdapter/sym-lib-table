@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Aldervon")(type "KiCad")(uri "${KIPRJMOD}/Libraries/Aldervon-Libs/Symbols/Aldervon.kicad_sym")(options "")(descr ""))
+)
