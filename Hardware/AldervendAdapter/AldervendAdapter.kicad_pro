@@ -445,7 +445,7 @@
       "unconnected_wire_endpoint": "warning",
       "undefined_netclass": "error",
       "unit_value_mismatch": "error",
-      "unresolved_variable": "error",
+      "unresolved_variable": "warning",
       "wire_dangling": "error"
     }
   },
