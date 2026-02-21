@@ -62,8 +62,9 @@ jobs:
       - name: Find 3D Top View
         id: find_image
         run: |
-          IMAGE_PATH=$(ls *-3D_top.png | head -1)
-          echo "image_path=$IMAGE_PATH" >> $GITHUB_OUTPUT
+          # Artifact may be at root or under _hardwareOutput/; find doesn't error when no match
+          IMAGE_PATH=$(find . -name '*-3D_top.png' -print -quit)
+          echo "image_path=${IMAGE_PATH#./}" >> $GITHUB_OUTPUT
           
       - name: Post to Discord
         if: steps.find_image.outputs.image_path != ''
