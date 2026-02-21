@@ -8823,7 +8823,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_Elec_6.3x5.4"
+		(property "Footprint" "Capacitor_SMD:C_Elec_4x5.4"
 			(at 93.98 125.73 0)
 			(effects
 				(font
@@ -8850,7 +8850,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC#" "C72494"
+		(property "LCSC#" "C3356"
 			(at 93.98 125.73 0)
 			(effects
 				(font
@@ -11928,7 +11928,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC#" "C74622"
+		(property "LCSC#" "C27784"
 			(at 26.67 125.73 0)
 			(effects
 				(font
