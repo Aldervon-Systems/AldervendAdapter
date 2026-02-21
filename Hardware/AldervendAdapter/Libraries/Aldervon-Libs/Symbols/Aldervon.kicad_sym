@@ -673,7 +673,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Aldervon:K7805M-1000R3"
 			(at 0 0 0)
 			(effects
 				(font
