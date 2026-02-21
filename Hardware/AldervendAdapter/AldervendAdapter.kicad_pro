@@ -493,7 +493,7 @@
       "plot": "",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "AldervendAdapter.step",
       "svg": "",
       "vrml": ""
     },
@@ -580,7 +580,7 @@
           "group_by": false,
           "label": "LCSC#",
           "name": "LCSC#",
-          "show": false
+          "show": true
         },
         {
           "group_by": false,
@@ -592,6 +592,12 @@
           "group_by": false,
           "label": "#",
           "name": "${ITEM_NUMBER}",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "LSCS#",
+          "name": "LSCS#",
           "show": false
         }
       ],
