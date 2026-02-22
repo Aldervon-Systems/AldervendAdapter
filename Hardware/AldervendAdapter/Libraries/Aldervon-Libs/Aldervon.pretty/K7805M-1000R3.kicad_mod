@@ -200,4 +200,15 @@
 		(uuid "eb98fa19-6254-4c77-8cdb-25b6129714e0")
 	)
 	(embedded_fonts no)
+	(model "${KIPRJMOD}/Libraries/Aldervon-Libs/3d/K7805M-1000R3-Body.step"
+		(offset
+			(xyz 0 0 5.25)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -180)
+		)
+	)
 )
