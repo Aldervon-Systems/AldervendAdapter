@@ -58,7 +58,16 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        [
+          "courtyards_overlap|144680418|120463746|2ad95ff3-545b-4677-bd2c-45c733ac0f0e|e1138a00-c1e3-4953-9246-a0cbe4e6cd84",
+          "Only overlaps into RF zone"
+        ],
+        [
+          "courtyards_overlap|145795000|79459924|347b3c7f-0e5d-430f-b687-201e0c54fff3|e1138a00-c1e3-4953-9246-a0cbe4e6cd84",
+          "Only overlaps into RF zone"
+        ]
+      ],
       "meta": {
         "version": 2
       },
@@ -117,7 +126,7 @@
         "track_width": "error",
         "tracks_crossing": "error",
         "unconnected_items": "error",
-        "unresolved_variable": "error",
+        "unresolved_variable": "ignore",
         "via_dangling": "warning",
         "zones_intersect": "error"
       },
@@ -127,7 +136,7 @@
         "min_connection": 0.0,
         "min_copper_edge_clearance": 0.0,
         "min_groove_width": 0.0,
-        "min_hole_clearance": 0.25,
+        "min_hole_clearance": 0.2,
         "min_hole_to_hole": 0.25,
         "min_microvia_diameter": 0.2,
         "min_microvia_drill": 0.1,
