@@ -9267,7 +9267,7 @@
 				(hide yes)
 			)
 		)
-		(property "LSCS#" ""
+		(property "LSCS#" "C114098"
 			(at 33.02 35.56 0)
 			(effects
 				(font
@@ -10551,7 +10551,7 @@
 				(hide yes)
 			)
 		)
-		(property "LSCS#" ""
+		(property "LSCS#" "C114098"
 			(at 81.28 35.56 0)
 			(effects
 				(font
