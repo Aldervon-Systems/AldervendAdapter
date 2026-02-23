@@ -518,7 +518,7 @@
       "plot": "",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "AldervendAdapter.step",
+      "step": "../../../../../Downloads/AldervendAdapter.step",
       "svg": "",
       "vrml": ""
     },

@@ -4582,7 +4582,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "8de7ae39-d2f4-43cc-9c34-b74e23f67271")
+			(uuid "4bc08f19-92ee-402d-ba8a-3d27103a0236")
 		)
 		(fp_line
 			(start -3.4 -1)
@@ -4592,7 +4592,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "15aa0a8d-a433-4bb5-b110-69944cecfabb")
+			(uuid "9152b595-ce89-4f43-8a29-5e2d6cb5a373")
 		)
 		(fp_line
 			(start -3.4 -0.7)
@@ -4602,7 +4602,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "21eaad52-0bb0-4a32-ae46-f60bb64fe42c")
+			(uuid "de3f7d6f-e4b2-4450-b5ae-adcbb76a3121")
 		)
 		(fp_line
 			(start 4 -0.3)
@@ -4612,7 +4612,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "819cfc81-e622-4125-bacf-7ce01743b243")
+			(uuid "b9e0b668-f36d-49ac-8751-50cf94c5e0ef")
 		)
 		(fp_line
 			(start 3.7 -0.3)
@@ -4622,7 +4622,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "b5685405-585c-41f7-8c9c-36b3cc946cb9")
+			(uuid "4b253b0f-7cee-4124-b8ab-6d88258fe159")
 		)
 		(fp_line
 			(start -4.1 -0.3)
@@ -4632,7 +4632,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "7faef70c-faaf-4571-aee7-8464a4be6112")
+			(uuid "3fbe9abc-3e5f-46f8-b34f-7b803738e373")
 		)
 		(fp_rect
 			(start -5.8 -4)
@@ -4643,7 +4643,7 @@
 			)
 			(fill no)
 			(layer "F.SilkS")
-			(uuid "6feec276-8441-4b23-b428-24b172823f07")
+			(uuid "f57cbf45-2904-4fe0-a4fd-46c6927f6cb4")
 		)
 		(fp_text user "${REFERENCE}"
 			(at 0 3.175 90)
@@ -4660,7 +4660,7 @@
 		(dimension
 			(type orthogonal)
 			(layer "Dwgs.User")
-			(uuid "cc6f40a1-4f48-4db4-aec1-2358a3367a45")
+			(uuid "017b0a0e-e9d1-4e72-9959-8a00f571f91c")
 			(pts
 				(xy 205.5 77.5) (xy 207.8 77.5)
 			)
@@ -4686,7 +4686,7 @@
 			(gr_text "2.3"
 				(at 206.65 68.5 0)
 				(layer "Dwgs.User")
-				(uuid "cc6f40a1-4f48-4db4-aec1-2358a3367a45")
+				(uuid "017b0a0e-e9d1-4e72-9959-8a00f571f91c")
 				(effects
 					(font
 						(size 1 1)
@@ -4729,6 +4729,17 @@
 			(uuid "768a6c4a-aead-449f-bf10-8ea722684f30")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/Libraries/Aldervon-Libs/3d/K7805M-1000R3-Body.step"
+			(offset
+				(xyz 0 0 5.25)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz -0 -0 -180)
+			)
+		)
 	)
 	(footprint "TestPoint:TestPoint_Pad_2.0x2.0mm"
 		(layer "F.Cu")
