@@ -1,8 +1,15 @@
-.pio
-.vscode
+# PlatformIO
+.pio/
 
-# ESP-IDF
+# IDE
+.vscode/
+
+# ESP-IDF / PIO build
 build/
 sdkconfig
+sdkconfig.esp32-c6
 managed_components/
 dependencies.lock
+
+# Local OTA
+www/firmware.bin
