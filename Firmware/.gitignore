@@ -1,2 +1,8 @@
 .pio
 .vscode
+
+# ESP-IDF
+build/
+sdkconfig
+managed_components/
+dependencies.lock

@@ -1,0 +1,21 @@
+menu "Aldervend Adapter"
+
+config WIFI_SSID
+    string "WiFi SSID"
+    default ""
+    help
+        SSID for OTA and connectivity (leave empty to skip connect).
+
+config WIFI_PASSWORD
+    string "WiFi Password"
+    default ""
+    help
+        WiFi password.
+
+config VERSION_BASE_URL
+    string "OTA version check URL (without ?id=)"
+    default "https://api.aldervon.com/device/version"
+    help
+        Base URL for version check; device appends ?id=<device_id>.
+
+endmenu
