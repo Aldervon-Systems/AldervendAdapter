@@ -16,6 +16,7 @@
 
 #include "network.h"
 #include "heartbeat.h"
+#include "device_id.h"
 
 static const char *TAG = "network";
 
@@ -98,19 +99,74 @@ static void wifi_init_sta(const char *ssid, const char *password)
     ESP_LOGI(TAG, "wifi_init_sta done, connecting to %s", ssid);
 }
 
-static const char *CONFIG_FORM_HTML =
-    "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Aldervend WiFi</title></head>"
-    "<body><h1>Aldervend Adapter WiFi Setup</h1>"
-    "<form method='POST' action='/save'>"
-    "SSID: <input name='ssid'><br>"
-    "Password: <input type='password' name='pass'><br>"
-    "<button type='submit'>Save & Reboot</button>"
-    "</form></body></html>";
-
 static esp_err_t root_get_handler(httpd_req_t *req)
 {
+    char device_id[DEVICE_ID_LEN + 1] = {0};
+    device_id_get(device_id);
+
+    const char *suffix = device_id;
+    size_t len = strlen(device_id);
+    if (len > 6) {
+        suffix = device_id + (len - 6);
+    }
+
+    const char *revision =
+#ifdef REVISION
+        REVISION;
+#else
+        "unknown";
+#endif
+
+    const char *hash =
+#ifdef HASH
+        HASH;
+#else
+        "unknown";
+#endif
+
+    char html[1024];
+    int n = snprintf(
+        html, sizeof(html),
+        "<!DOCTYPE html>"
+        "<html><head><meta charset='utf-8'><title>Aldervend WiFi</title>"
+        "<style>"
+        "body{font-family:sans-serif;background:#f5f5f5;margin:0;padding:0;}"
+        ".card{max-width:420px;margin:40px auto;background:#fff;border-radius:8px;"
+        "box-shadow:0 2px 6px rgba(0,0,0,0.15);padding:20px 24px;}"
+        "h1{font-size:20px;margin-top:0;margin-bottom:8px;}"
+        "p.meta{font-size:12px;color:#555;margin:4px 0;}"
+        "code{font-family:monospace;background:#f0f0f0;padding:2px 4px;border-radius:3px;}"
+        "label{display:block;margin-top:12px;font-size:14px;}"
+        "input{width:100%%;padding:6px 8px;margin-top:4px;box-sizing:border-box;}"
+        "button{margin-top:16px;padding:8px 12px;border:none;border-radius:4px;"
+        "background:#0069d9;color:#fff;font-weight:600;cursor:pointer;}"
+        "button:hover{background:#0053b3;}"
+        "a{color:#0069d9;text-decoration:none;font-size:12px;}"
+        "a:hover{text-decoration:underline;}"
+        "</style></head>"
+        "<body><div class='card'>"
+        "<h1>Aldervend Adapter WiFi</h1>"
+        "<p class='meta'>Device ID: <code>%s</code></p>"
+        "<p class='meta'>Setup SSID: <code>Aldervend-%s</code></p>"
+        "<p class='meta'>Revision: <code>%s</code></p>"
+        "<p class='meta'>Build: <a href='https://github.com/Aldervon-Systems/AldervendAdapter/commit/%s' target='_blank'>%s</a></p>"
+        "<form method='POST' action='/save'>"
+        "<label>WiFi SSID<input name='ssid'></label>"
+        "<label>WiFi Password<input type='password' name='pass'></label>"
+        "<button type='submit'>Save &amp; Reboot</button>"
+        "</form>"
+        "</div></body></html>",
+        device_id,
+        suffix,
+        revision,
+        hash,
+        hash
+    );
+    if (n < 0 || n >= (int)sizeof(html)) {
+        return httpd_resp_send_500(req);
+    }
     httpd_resp_set_type(req, "text/html");
-    return httpd_resp_send(req, CONFIG_FORM_HTML, HTTPD_RESP_USE_STRLEN);
+    return httpd_resp_send(req, html, n);
 }
 
 static void url_decode(char *s)
@@ -265,8 +321,16 @@ static void start_config_portal(void)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    wifi_config_t ap_cfg = { 0 };
-    strcpy((char *)ap_cfg.ap.ssid, "Aldervend-Setup");
+    char device_id[DEVICE_ID_LEN + 1] = {0};
+    device_id_get(device_id);
+    const char *suffix = device_id;
+    size_t len = strlen(device_id);
+    if (len > 6) {
+        suffix = device_id + (len - 6);
+    }
+
+    wifi_config_t ap_cfg = (wifi_config_t){ 0 };
+    snprintf((char *)ap_cfg.ap.ssid, sizeof(ap_cfg.ap.ssid), "Aldervend-%s", suffix);
     ap_cfg.ap.ssid_len = strlen((char *)ap_cfg.ap.ssid);
     ap_cfg.ap.channel = 1;
     ap_cfg.ap.max_connection = 4;

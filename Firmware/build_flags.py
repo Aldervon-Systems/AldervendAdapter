@@ -30,6 +30,28 @@ except Exception as e:
     print("-D REVISION='Unknown'")
 
 try:
+    git_hash = (
+        subprocess.check_output(
+            [
+                "git",
+                "rev-parse",
+                "--short",
+                "HEAD",
+            ]
+        )
+        .strip()
+        .decode("utf-8")
+    )
+
+    print(f"-D HASH='\"{git_hash}\"'")
+except Exception as e:
+    logging.warning("Getting git hash failed!! Check that you have git installed?")
+    logging.warning(e)
+
+    print("-D HASH='Unknown'")
+
+
+try:
     host = (
         subprocess.check_output(
             [
