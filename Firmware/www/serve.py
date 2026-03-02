@@ -3,8 +3,7 @@
 Serve version.json and firmware .bin for local OTA testing.
 Usage:
   cd www && python serve.py [port]
-  Set CONFIG_VERSION_BASE_URL to http://<your-ip>:8080/version (no .json; we serve JSON at that path).
-  Or use https://api.aldervon.com/device/version in production (append ?id=... by firmware).
+  Caddy forward to https://api.aldervon.com/device/version in production (append ?id=... by firmware).
 """
 import argparse
 import hashlib

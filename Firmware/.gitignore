@@ -10,6 +10,7 @@ sdkconfig
 sdkconfig.esp32-c6
 managed_components/
 dependencies.lock
+sdkconfig*.old
 
 # Local OTA
 www/firmware.bin
