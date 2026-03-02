@@ -7,6 +7,7 @@
 
 #include "esp_log.h"
 #include "esp_random.h"
+#include "esp_system.h"
 
 #include "cJSON.h"
 #include "device_id.h"
@@ -19,11 +20,13 @@ static const char *TAG = "mdb";
 #define INTERVAL_MIN_MS 5000 // TODO: Remove me
 #define INTERVAL_MAX_MS 90000 // TODO: Remove me
 #define TEST_DATA       "Test Data..." // TODO: Remove me
+#define MAX_CONSECUTIVE_BULK_FAILS 5
 
 static void mdb_task(void *arg)
 {
     char device_id[DEVICE_ID_LEN + 1] = {0};
     device_id_get(device_id);
+    int consecutive_fails = 0;
 
     while (1) {
         const char *api_base = NULL;
@@ -61,8 +64,15 @@ static void mdb_task(void *arg)
         free(body);
         if (ok) {
             ESP_LOGD(TAG, "bulk sent");
+            consecutive_fails = 0;
         } else {
-            ESP_LOGW(TAG, "bulk POST failed");
+            consecutive_fails++;
+            ESP_LOGW(TAG, "bulk POST failed (%d/%d)", consecutive_fails, MAX_CONSECUTIVE_BULK_FAILS);
+            if (consecutive_fails > MAX_CONSECUTIVE_BULK_FAILS) {
+                ESP_LOGE(TAG, "too many bulk failures; rebooting");
+                vTaskDelay(pdMS_TO_TICKS(1000));
+                esp_restart();
+            }
         }
 
         uint32_t r;
