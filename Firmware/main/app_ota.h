@@ -4,9 +4,9 @@
 #include <stdbool.h>
 
 /**
- * Download firmware from url, verify SHA256 hex checksum, write to next OTA
- * partition, set boot partition and restart. Returns true only after restart
- * (i.e. normally does not return on success). Returns false on failure.
+ * Download firmware from url via esp_https_ota, write to next OTA partition,
+ * set boot partition and restart. On success the device restarts (does not return).
+ * expected_sha256_hex is unused; esp_https_ota performs its own image validation.
  */
 bool ota_update_from_url(const char *url, const char *expected_sha256_hex);
 

@@ -27,6 +27,24 @@ def get_local_ip():
     finally:
         s.close()
 
+def get_git_describe():
+    """
+    Returns the output of `git describe --long`, or None if unavailable.
+    """
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["git", "describe", "--long"], 
+            cwd=WWW_DIR,
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE, 
+            text=True,
+            check=True
+        )
+        return result.stdout.strip()
+    except Exception:
+        return None
+
 
 def make_version_json(base_url, bin_path):
     with open(os.path.join(WWW_DIR, "version.json")) as f:
@@ -63,7 +81,7 @@ class OTAHandler(http.server.SimpleHTTPRequestHandler):
                 "api_base": api_base,
                 "token": token,
                 "firmware": {
-                    "latest_version": "v1.0-16-gXXXXXXXXXX",
+                    "latest_version": get_git_describe(),
                     "url": firmware_url,
                     "checksum": "0" * 64,
                 },
