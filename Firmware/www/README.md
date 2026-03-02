@@ -34,3 +34,34 @@ The firmware calls this on every boot after WiFi connect. The server must implem
 ```
 
 The device keeps `api_base` and `token` in RAM for the current session only (not persisted). It check-ins every boot and uses the returned values for authenticated requests until the next reboot.
+
+---
+
+## Bulk (MDB data upload)
+
+For bulk data (mostly just to faccilitate a smarter firmware sorting system) the adapter should push to /bulk like this
+
+**Request**
+
+- **Method:** `POST`
+- **Path:** `/bulk` (full URL: `api_base` + `/bulk`, e.g. `https://api.example.com/bulk`)
+- **Headers:**
+  - `Content-Type: application/json`
+  - `Authorization: Bearer <token>` (session token from check-in)
+- **Body:** JSON object with at least:
+  - `device_id` (string): Device identifier (hex).
+  - `data` (string): Payload from the device (e.g. MDB/telemetry data; format is application-specific).
+
+**Example request body**
+
+```json
+{
+  "device_id": "c6de87aa1787e36010649810",
+  "data": "Test Data..."
+}
+```
+
+**Response**
+
+- **Status:** `200 OK` (or any 2xx). The device treats 2xx as success and continues; non-2xx or connection failure is logged and the task retries after the next interval.
+- **Body:** Optional (e.g. `{}` or a JSON object). I dont do anything with the replied body but replying `{'OK'}` could be nice.

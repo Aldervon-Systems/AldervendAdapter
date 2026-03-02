@@ -1,6 +1,6 @@
 #include "esp_http_client.h"
 #include "esp_log.h"
-#include "ota_cert.h"
+#include "aldervon_cert.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -64,4 +64,31 @@ bool aldervon_http_get(const char *url, uint8_t **out_body, size_t *out_size)
     }
     *out_body = http_get(url, out_size);
     return *out_body != NULL && *out_size > 0;
+}
+
+/* POST JSON to url with optional Bearer token. Returns true if status 2xx. */
+bool aldervon_http_post(const char *url, const char *bearer_token, const char *body, size_t body_len)
+{
+    if (!url || !body) return false;
+
+    esp_http_client_config_t cfg = {
+        .url = url,
+        .method = HTTP_METHOD_POST,
+        .event_handler = http_event,
+        .cert_pem = aldervon_root_ca_pem,
+    };
+    esp_http_client_handle_t client = esp_http_client_init(&cfg);
+    if (!client) return false;
+
+    esp_http_client_set_header(client, "Content-Type", "application/json");
+    if (bearer_token && bearer_token[0]) {
+        char auth[128];
+        snprintf(auth, sizeof(auth), "Bearer %s", bearer_token);
+        esp_http_client_set_header(client, "Authorization", auth);
+    }
+    esp_http_client_set_post_field(client, body, body_len);
+    esp_err_t err = esp_http_client_perform(client);
+    int status = esp_http_client_get_status_code(client);
+    esp_http_client_cleanup(client);
+    return (err == ESP_OK && status >= 200 && status < 300);
 }

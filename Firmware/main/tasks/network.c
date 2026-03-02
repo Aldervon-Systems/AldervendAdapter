@@ -21,6 +21,7 @@
 #include "heartbeat.h"
 #include "device_id.h"
 #include "api.h"
+#include "mdb.h"
 
 static const char *TAG = "network";
 
@@ -478,6 +479,7 @@ void network_init(void)
 
             ESP_LOGI(TAG, "Device check-in complete, ready for API traffic");
             heartbeat_set_mode(HEARTBEAT_MODE_NORMAL);
+            mdb_init();
         } else {
             ESP_LOGW(TAG, "WiFi not connected");
         }

@@ -56,7 +56,7 @@ class OTAHandler(http.server.SimpleHTTPRequestHandler):
             return
         if path == "/device/checkin":
             # Firmware expects JSON body with api_base and token; Authorization: Bearer <token>.
-            api_base = self._base_url.rstrip("/")
+            api_base = "https://api.aldervon.com"
             token = "dev-%s" % (self.path.split("id=")[-1].split("&")[0][:12] if "id=" in self.path else "local")
             payload = {"api_base": api_base, "token": token}
             body = json.dumps(payload).encode()
@@ -68,6 +68,27 @@ class OTAHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(body)
             return
         super().do_GET()
+
+    def do_POST(self):
+        path = self.path.split("?")[0].rstrip("/")
+        if path == "/bulk":
+            content_len = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(min(content_len, 4096)) if content_len else b""
+            try:
+                j = json.loads(body.decode()) if body else {}
+                device_id = j.get("device_id", "?")
+                data = j.get("data", "")
+                sys.stderr.write("bulk: device_id=%s data=%r\n" % (device_id, data))
+            except Exception:
+                pass
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", "2")
+            self.end_headers()
+            self.wfile.write(b"{}")
+            return
+        self.send_response(404)
+        self.end_headers()
 
     def log_message(self, format, *args):
         sys.stderr.write("%s - - [%s] %s\n" % (self.address_string(), self.log_date_time_string(), format % args))
