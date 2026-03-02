@@ -104,11 +104,13 @@ static esp_err_t root_get_handler(httpd_req_t *req)
     char device_id[DEVICE_ID_LEN + 1] = {0};
     device_id_get(device_id);
 
-    const char *suffix = device_id;
+    const char *suffix_src = device_id;
     size_t len = strlen(device_id);
     if (len > 6) {
-        suffix = device_id + (len - 6);
+        suffix_src = device_id + (len - 6);
     }
+    char suffix[7] = {0};
+    strncpy(suffix, suffix_src, sizeof(suffix) - 1);
 
     const char *revision =
 #ifdef REVISION
@@ -124,7 +126,7 @@ static esp_err_t root_get_handler(httpd_req_t *req)
         "unknown";
 #endif
 
-    char html[1024];
+    char html[2048];
     int n = snprintf(
         html, sizeof(html),
         "<!DOCTYPE html>"
@@ -323,11 +325,13 @@ static void start_config_portal(void)
 
     char device_id[DEVICE_ID_LEN + 1] = {0};
     device_id_get(device_id);
-    const char *suffix = device_id;
+    const char *suffix_src = device_id;
     size_t len = strlen(device_id);
     if (len > 6) {
-        suffix = device_id + (len - 6);
+        suffix_src = device_id + (len - 6);
     }
+    char suffix[7] = {0};
+    strncpy(suffix, suffix_src, sizeof(suffix) - 1);
 
     wifi_config_t ap_cfg = (wifi_config_t){ 0 };
     snprintf((char *)ap_cfg.ap.ssid, sizeof(ap_cfg.ap.ssid), "Aldervend-%s", suffix);

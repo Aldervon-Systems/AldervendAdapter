@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static const char *TAG = "http";
-
 static esp_err_t http_event(esp_http_client_event_t *evt)
 {
     return ESP_OK;
