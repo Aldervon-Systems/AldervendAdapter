@@ -17,12 +17,64 @@
 #include "network.h"
 #include "heartbeat.h"
 #include "device_id.h"
+#include "api.h"
 
 static const char *TAG = "network";
 
 #define WIFI_CONNECTED_BIT BIT0
 
 static EventGroupHandle_t s_wifi_event_group;
+
+static bool register_device(const char *device_id)
+{
+    // Need to have a device ID
+    if (!device_id || device_id[0] == '\0') {
+        return false;
+    }
+
+    char url[256];
+    int n = snprintf(url, sizeof(url), "%s?id=%s", CONFIG_REGISTER_URL, device_id);
+    if (n < 0 || n >= (int)sizeof(url)) {
+        ESP_LOGE(TAG, "register URL truncated");
+        return false;
+    }
+
+    uint8_t *body = NULL;
+    size_t len = 0;
+    if (!aldervon_http_get(url, &body, &len)) {
+        ESP_LOGW(TAG, "register HTTP failed");
+        free(body);
+        return false;
+    }
+    // Expect plain API base URL in body
+    // Trim trailing whitespace/newlines.
+    while (len > 0 && (body[len - 1] == '\n' || body[len - 1] == '\r' || body[len - 1] == ' ' || body[len - 1] == '\t')) {
+        body[--len] = '\0';
+    }
+    while (*body == ' ' || *body == '\t' || *body == '\r' || *body == '\n') {
+        body++;
+        len--;
+    }
+    if (len == 0) {
+        ESP_LOGW(TAG, "register: empty body");
+        return false;
+    }
+
+    nvs_handle_t nvs;
+    if (nvs_open("cfg", NVS_READWRITE, &nvs) != ESP_OK) {
+        ESP_LOGW(TAG, "register: failed to open NVS");
+        return false;
+    }
+    esp_err_t err = nvs_set_str(nvs, "api_base", (const char *)body);
+    if (err == ESP_OK) {
+        nvs_commit(nvs);
+        ESP_LOGI(TAG, "Registered, api_base=%s", (const char *)body);
+    } else {
+        ESP_LOGW(TAG, "register: failed to store api_base");
+    }
+    nvs_close(nvs);
+    return err == ESP_OK;
+}
 
 static bool load_wifi_config(char *ssid, size_t ssid_len, char *password, size_t pass_len)
 {
@@ -390,7 +442,18 @@ void network_init(void)
         EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT,
                                               false, false, pdMS_TO_TICKS(15000));
         if (bits & WIFI_CONNECTED_BIT) {
-            ESP_LOGI(TAG, "WiFi connected, ready for API traffic");
+            ESP_LOGI(TAG, "WiFi connected, attempting registration");
+            heartbeat_set_mode(HEARTBEAT_MODE_WORKING);
+
+            char device_id[DEVICE_ID_LEN + 1] = {0};
+            device_id_get(device_id);
+
+            while (!register_device(device_id)) {
+                ESP_LOGW(TAG, "Device register failed, retrying in 5s");
+                vTaskDelay(pdMS_TO_TICKS(5000));
+            }
+
+            ESP_LOGI(TAG, "Device registration complete, ready for API traffic");
             heartbeat_set_mode(HEARTBEAT_MODE_NORMAL);
         } else {
             ESP_LOGW(TAG, "WiFi not connected");

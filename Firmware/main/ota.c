@@ -1,6 +1,5 @@
 #include "esp_http_client.h"
 #include "esp_log.h"
-#include "cJSON.h"
 #include "ota_cert.h"
 #include <string.h>
 #include <stdlib.h>
