@@ -45,10 +45,24 @@ class OTAHandler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
-        if self.path.rstrip("/") in ("/version", "/version.json"):
+        path = self.path.split("?")[0].rstrip("/")
+        if path in ("/version", "/version.json"):
             body = make_version_json(self._base_url, self._bin_path).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if path == "/device/checkin":
+            # Firmware expects JSON body with api_base and token; Authorization: Bearer <token>.
+            api_base = self._base_url.rstrip("/")
+            token = "dev-%s" % (self.path.split("id=")[-1].split("&")[0][:12] if "id=" in self.path else "local")
+            payload = {"api_base": api_base, "token": token}
+            body = json.dumps(payload).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Authorization", "Bearer %s" % token)
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
@@ -89,6 +103,7 @@ def main():
         print("Serving %s at %s" % (WWW_DIR, base_url))
         print("  Version (JSON): %s/version  (append ?id=xxx in firmware)" % base_url)
         print("  Firmware:       %s/firmware.bin" % base_url)
+        print("  Check-in:       %s/device/checkin?id=xxx  (JSON: api_base, token; + Authorization header)" % base_url)
         print("Set CONFIG_VERSION_BASE_URL to %s/version" % base_url)
         print("Ctrl+C to stop")
         httpd.serve_forever()

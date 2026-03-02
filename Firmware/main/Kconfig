@@ -18,10 +18,10 @@ config VERSION_BASE_URL
     help
         Base URL for version check; device appends ?id=<device_id>.
 
-config REGISTER_URL
-    string "Device registration URL (without ?id=)"
-    default "https://api.aldervon.com/device/register"
+config CHECKIN_URL
+    string "Device check-in URL (without ?id=)"
+    default "https://api.aldervon.com/device/checkin"
     help
-        URL used on boot to register the device; firmware appends ?id=<device_id>.
+        URL used on boot for device check-in; firmware appends ?id=<device_id>.
 
 endmenu

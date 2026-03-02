@@ -29,3 +29,4 @@ CONFIG_LOG_DEFAULT_LEVEL_INFO=y
 CONFIG_WIFI_SSID=""
 CONFIG_WIFI_PASSWORD=""
 CONFIG_VERSION_BASE_URL="https://api.aldervon.com/device/version"
+CONFIG_CHECKIN_URL="https://api.aldervon.com/device/checkin"

@@ -1,5 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "cJSON.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
@@ -25,55 +28,75 @@ static const char *TAG = "network";
 
 static EventGroupHandle_t s_wifi_event_group;
 
-static bool register_device(const char *device_id)
+/* Session-only: filled by check-in each boot. */
+#define API_BASE_MAX 192
+#define TOKEN_MAX   96
+static char s_api_base[API_BASE_MAX] = {0};
+static char s_token[TOKEN_MAX] = {0};
+
+void network_get_api_config(const char **out_api_base, const char **out_token)
 {
-    // Need to have a device ID
+    if (out_api_base) *out_api_base = s_api_base[0] ? s_api_base : NULL;
+    if (out_token)   *out_token   = s_token[0]   ? s_token   : NULL;
+}
+
+static bool checkin_device(const char *device_id)
+{
     if (!device_id || device_id[0] == '\0') {
         return false;
     }
 
     char url[256];
-    int n = snprintf(url, sizeof(url), "%s?id=%s", CONFIG_REGISTER_URL, device_id);
+    int n = snprintf(url, sizeof(url), "%s?id=%s", CONFIG_CHECKIN_URL, device_id);
     if (n < 0 || n >= (int)sizeof(url)) {
-        ESP_LOGE(TAG, "register URL truncated");
+        ESP_LOGE(TAG, "check-in URL truncated");
         return false;
     }
 
     uint8_t *body = NULL;
     size_t len = 0;
     if (!aldervon_http_get(url, &body, &len)) {
-        ESP_LOGW(TAG, "register HTTP failed");
+        ESP_LOGW(TAG, "check-in HTTP failed");
         free(body);
         return false;
     }
-    // Expect plain API base URL in body
-    // Trim trailing whitespace/newlines.
-    while (len > 0 && (body[len - 1] == '\n' || body[len - 1] == '\r' || body[len - 1] == ' ' || body[len - 1] == '\t')) {
-        body[--len] = '\0';
-    }
-    while (*body == ' ' || *body == '\t' || *body == '\r' || *body == '\n') {
-        body++;
-        len--;
-    }
-    if (len == 0) {
-        ESP_LOGW(TAG, "register: empty body");
+    if (!body || len == 0) {
+        free(body);
         return false;
+    }
+    ((char *)body)[len] = '\0';
+
+    cJSON *root = cJSON_ParseWithLength((const char *)body, len);
+    if (!root) {
+        ESP_LOGW(TAG, "check-in: invalid JSON");
+        free(body);
+        return false;
+    }
+    cJSON *api_base_item = cJSON_GetObjectItem(root, "api_base");
+    const char *api_base = api_base_item && cJSON_IsString(api_base_item) ? api_base_item->valuestring : NULL;
+    if (!api_base || api_base[0] == '\0') {
+        ESP_LOGW(TAG, "check-in: no api_base in response");
+        cJSON_Delete(root);
+        free(body);
+        return false;
+    }
+    const char *token = NULL;
+    cJSON *token_item = cJSON_GetObjectItem(root, "token");
+    if (token_item && cJSON_IsString(token_item)) {
+        token = token_item->valuestring;
     }
 
-    nvs_handle_t nvs;
-    if (nvs_open("cfg", NVS_READWRITE, &nvs) != ESP_OK) {
-        ESP_LOGW(TAG, "register: failed to open NVS");
-        return false;
+    strncpy(s_api_base, api_base, API_BASE_MAX - 1);
+    s_api_base[API_BASE_MAX - 1] = '\0';
+    s_token[0] = '\0';
+    if (token && token[0]) {
+        strncpy(s_token, token, TOKEN_MAX - 1);
+        s_token[TOKEN_MAX - 1] = '\0';
     }
-    esp_err_t err = nvs_set_str(nvs, "api_base", (const char *)body);
-    if (err == ESP_OK) {
-        nvs_commit(nvs);
-        ESP_LOGI(TAG, "Registered, api_base=%s", (const char *)body);
-    } else {
-        ESP_LOGW(TAG, "register: failed to store api_base");
-    }
-    nvs_close(nvs);
-    return err == ESP_OK;
+    cJSON_Delete(root);
+    free(body);
+    ESP_LOGI(TAG, "Check-in complete, api_base=%s", s_api_base);
+    return true;
 }
 
 static bool load_wifi_config(char *ssid, size_t ssid_len, char *password, size_t pass_len)
@@ -442,18 +465,18 @@ void network_init(void)
         EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT,
                                               false, false, pdMS_TO_TICKS(15000));
         if (bits & WIFI_CONNECTED_BIT) {
-            ESP_LOGI(TAG, "WiFi connected, attempting registration");
+            ESP_LOGI(TAG, "WiFi connected, attempting check-in");
             heartbeat_set_mode(HEARTBEAT_MODE_WORKING);
 
             char device_id[DEVICE_ID_LEN + 1] = {0};
             device_id_get(device_id);
 
-            while (!register_device(device_id)) {
-                ESP_LOGW(TAG, "Device register failed, retrying in 5s");
+            while (!checkin_device(device_id)) {
+                ESP_LOGW(TAG, "Device check-in failed, retrying in 5s");
                 vTaskDelay(pdMS_TO_TICKS(5000));
             }
 
-            ESP_LOGI(TAG, "Device registration complete, ready for API traffic");
+            ESP_LOGI(TAG, "Device check-in complete, ready for API traffic");
             heartbeat_set_mode(HEARTBEAT_MODE_NORMAL);
         } else {
             ESP_LOGW(TAG, "WiFi not connected");
