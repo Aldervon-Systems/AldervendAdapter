@@ -3,8 +3,11 @@
 
 void network_init(void);
 
-/** Session-only api_base and token from check-in (this boot). Not persisted. */
+/** api_base and token from check-in */
 void network_get_api_config(const char **out_api_base, const char **out_token);
+
+/** Latest firmware info from check-in */
+void network_get_firmware_info(const char **out_version, const char **out_url, const char **out_checksum);
 
 #endif
 

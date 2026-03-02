@@ -21,7 +21,6 @@
 #include "heartbeat.h"
 #include "device_id.h"
 #include "api.h"
-#include "mdb.h"
 
 static const char *TAG = "network";
 
@@ -32,13 +31,26 @@ static EventGroupHandle_t s_wifi_event_group;
 /* Session-only: filled by check-in each boot. */
 #define API_BASE_MAX 192
 #define TOKEN_MAX   96
+#define FW_VERSION_MAX  64
+#define FW_URL_MAX     256
+#define FW_CHECKSUM_MAX 64
 static char s_api_base[API_BASE_MAX] = {0};
 static char s_token[TOKEN_MAX] = {0};
+static char s_fw_version[FW_VERSION_MAX] = {0};
+static char s_fw_url[FW_URL_MAX] = {0};
+static char s_fw_checksum[FW_CHECKSUM_MAX] = {0};
 
 void network_get_api_config(const char **out_api_base, const char **out_token)
 {
     if (out_api_base) *out_api_base = s_api_base[0] ? s_api_base : NULL;
     if (out_token)   *out_token   = s_token[0]   ? s_token   : NULL;
+}
+
+void network_get_firmware_info(const char **out_version, const char **out_url, const char **out_checksum)
+{
+    if (out_version)   *out_version   = s_fw_version[0]   ? s_fw_version   : NULL;
+    if (out_url)       *out_url       = s_fw_url[0]       ? s_fw_url       : NULL;
+    if (out_checksum)  *out_checksum  = s_fw_checksum[0]  ? s_fw_checksum  : NULL;
 }
 
 static bool checkin_device(const char *device_id)
@@ -93,6 +105,25 @@ static bool checkin_device(const char *device_id)
     if (token && token[0]) {
         strncpy(s_token, token, TOKEN_MAX - 1);
         s_token[TOKEN_MAX - 1] = '\0';
+    }
+    s_fw_version[0] = s_fw_url[0] = s_fw_checksum[0] = '\0';
+    cJSON *fw = cJSON_GetObjectItem(root, "firmware");
+    if (fw && cJSON_IsObject(fw)) {
+        cJSON *v = cJSON_GetObjectItem(fw, "latest_version");
+        cJSON *u = cJSON_GetObjectItem(fw, "url");
+        cJSON *c = cJSON_GetObjectItem(fw, "checksum");
+        if (v && cJSON_IsString(v)) {
+            strncpy(s_fw_version, v->valuestring, FW_VERSION_MAX - 1);
+            s_fw_version[FW_VERSION_MAX - 1] = '\0';
+        }
+        if (u && cJSON_IsString(u)) {
+            strncpy(s_fw_url, u->valuestring, FW_URL_MAX - 1);
+            s_fw_url[FW_URL_MAX - 1] = '\0';
+        }
+        if (c && cJSON_IsString(c)) {
+            strncpy(s_fw_checksum, c->valuestring, FW_CHECKSUM_MAX - 1);
+            s_fw_checksum[FW_CHECKSUM_MAX - 1] = '\0';
+        }
     }
     cJSON_Delete(root);
     free(body);
@@ -479,7 +510,6 @@ void network_init(void)
 
             ESP_LOGI(TAG, "Device check-in complete, ready for API traffic");
             heartbeat_set_mode(HEARTBEAT_MODE_NORMAL);
-            mdb_init();
         } else {
             ESP_LOGW(TAG, "WiFi not connected");
         }

@@ -55,10 +55,19 @@ class OTAHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(body)
             return
         if path == "/device/checkin":
-            # Firmware expects JSON body with api_base and token; Authorization: Bearer <token>.
+            # Firmware expects JSON body with api_base, token, and optional firmware info.
             api_base = "https://api.aldervon.com"
             token = "dev-%s" % (self.path.split("id=")[-1].split("&")[0][:12] if "id=" in self.path else "local")
-            payload = {"api_base": api_base, "token": token}
+            firmware_url = api_base.rstrip("/") + "/firmware.bin"
+            payload = {
+                "api_base": api_base,
+                "token": token,
+                "firmware": {
+                    "latest_version": "v1.0-16-gXXXXXXXXXX",
+                    "url": firmware_url,
+                    "checksum": "0" * 64,
+                },
+            }
             body = json.dumps(payload).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
