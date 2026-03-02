@@ -20,6 +20,9 @@ static const char *TAG = "main";
 
 void app_main(void)
 {
+    gpio_reset_pin(STAT_LED);
+    gpio_set_direction(STAT_LED, GPIO_MODE_OUTPUT);
+
     for (int i = 0; i < 10; i++) {
         gpio_set_level(STAT_LED, 0);
         vTaskDelay(pdMS_TO_TICKS(50));
@@ -43,8 +46,8 @@ void app_main(void)
         ESP_LOGE(TAG, "device_id init failed");
     }
 
-    network_init();
     heartbeat_init();
+    network_init();
 
     vTaskDelay(portMAX_DELAY);
 }
