@@ -25,12 +25,24 @@ static const char *TAG = "main";
 
 #define POST_INIT_STACK 8192
 #define CHECKIN_INTERVAL_MS  (4 * 3600 * 1000)  /* 4 hours */
+#define WAIT_CHECKIN_MS     2000  /* poll interval while waiting for check-in */
 
 static void post_init_task(void *arg)
 {
+    const char *api_base = NULL;
     const char *fw_version = NULL;
     const char *fw_url = NULL;
     const char *fw_checksum = NULL;
+
+    /* Wait until we're online and have checked in (api_base set) before OTA/MDB. */
+    while (1) {
+        network_get_api_config(&api_base, NULL);
+        if (api_base && api_base[0] != '\0') {
+            break;
+        }
+        vTaskDelay(pdMS_TO_TICKS(WAIT_CHECKIN_MS));
+    }
+
     network_get_firmware_info(&fw_version, &fw_url, &fw_checksum);
     if (fw_version && fw_version[0] != '\0' && fw_url && fw_url[0] != '\0') {
         if (ota_version_older_than(REVISION, fw_version)) {

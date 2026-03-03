@@ -462,6 +462,7 @@ static void start_config_portal(void)
     xTaskCreate(dns_captive_task, "dns_captive", 2048, NULL, 3, NULL);
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.stack_size = 8192;
     httpd_handle_t server = NULL;
     if (httpd_start(&server, &config) == ESP_OK) {
         httpd_uri_t root = {
