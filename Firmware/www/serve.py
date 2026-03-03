@@ -27,6 +27,20 @@ def get_local_ip():
     finally:
         s.close()
 
+def get_newest_v_bin():
+    """
+    Return the filename (e.g. v16.bin) of the newest v*.bin in WWW_DIR by mtime,
+    or None if none found.
+    """
+    import glob
+    pattern = os.path.join(WWW_DIR, "v*.bin")
+    bins = glob.glob(pattern)
+    if not bins:
+        return None
+    newest = max(bins, key=os.path.getmtime)
+    return os.path.basename(newest)
+
+
 def get_git_describe():
     """
     Returns the output of `git describe --long`, or None if unavailable.
@@ -76,7 +90,8 @@ class OTAHandler(http.server.SimpleHTTPRequestHandler):
             # Firmware expects JSON body with api_base, token, and optional firmware info.
             api_base = "https://api.aldervon.com"
             token = "dev-%s" % (self.path.split("id=")[-1].split("&")[0][:12] if "id=" in self.path else "local")
-            firmware_url = api_base.rstrip("/") + "/firmware.bin"
+            v_bin = get_newest_v_bin()
+            firmware_url = api_base.rstrip("/") + "/" + v_bin
             payload = {
                 "api_base": api_base,
                 "token": token,

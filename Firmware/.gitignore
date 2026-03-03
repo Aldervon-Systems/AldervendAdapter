@@ -13,4 +13,4 @@ dependencies.lock
 sdkconfig*.old
 
 # Local OTA
-www/firmware.bin
+www/*.bin
