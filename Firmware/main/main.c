@@ -24,6 +24,7 @@
 static const char *TAG = "main";
 
 #define POST_INIT_STACK 8192
+#define CHECKIN_INTERVAL_MS  (4 * 3600 * 1000)  /* 4 hours */
 
 /* Parse "vMAJOR.MINOR-COMMIT-..." into major, minor, commit. Returns true on success. */
 static bool parse_version(const char *s, int *major, int *minor, int *commit)
@@ -61,19 +62,30 @@ static void post_init_task(void *arg)
     const char *fw_checksum = NULL;
     network_get_firmware_info(&fw_version, &fw_url, &fw_checksum);
     if (fw_version && fw_version[0] != '\0' && fw_url && fw_url[0] != '\0') {
-#ifdef REVISION
         if (version_older_than(REVISION, fw_version)) {
             ESP_LOGI(TAG, "revision %s older than latest %s, attempting OTA", REVISION, fw_version);
             if (!ota_update_from_url(fw_url, fw_checksum)) {
                 ESP_LOGW(TAG, "OTA update failed, continuing with current firmware");
             }
         }
-#else
-        (void)fw_version;
-#endif
     }
     mdb_init();
-    vTaskDelay(portMAX_DELAY);
+
+    /* Re-check-in every 4 hours to pick up new firmware info and optionally OTA. */
+    for (;;) {
+        vTaskDelay(pdMS_TO_TICKS(CHECKIN_INTERVAL_MS));
+        if (network_checkin()) {
+            network_get_firmware_info(&fw_version, &fw_url, &fw_checksum);
+            if (fw_version && fw_version[0] != '\0' && fw_url && fw_url[0] != '\0') {
+                if (version_older_than(REVISION, fw_version)) {
+                    ESP_LOGI(TAG, "periodic check: revision %s older than %s, attempting OTA", REVISION, fw_version);
+                    if (!ota_update_from_url(fw_url, fw_checksum)) {
+                        ESP_LOGW(TAG, "OTA update failed");
+                    }
+                }
+            }
+        }
+    }
 }
 
 void app_main(void)

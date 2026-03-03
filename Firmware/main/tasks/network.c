@@ -131,6 +131,13 @@ static bool checkin_device(const char *device_id)
     return true;
 }
 
+bool network_checkin(void)
+{
+    char device_id[DEVICE_ID_LEN + 1] = {0};
+    device_id_get(device_id);
+    return checkin_device(device_id);
+}
+
 static bool load_wifi_config(char *ssid, size_t ssid_len, char *password, size_t pass_len)
 {
     nvs_handle_t nvs;
