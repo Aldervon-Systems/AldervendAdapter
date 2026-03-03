@@ -4,4 +4,7 @@
 // LEDs
 #define STAT_LED 2 // IO2 (pin 5)
 
+// Buttons
+#define BOOT_BTN 9 // IO9 (pin 23)
+
 #endif
