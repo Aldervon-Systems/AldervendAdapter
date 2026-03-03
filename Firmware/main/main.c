@@ -19,41 +19,12 @@
 #include "tasks/network.h"
 #include "tasks/heartbeat.h"
 #include "tasks/mdb.h"
-#include "app_ota.h"
+#include "ota_utils.h"
 
 static const char *TAG = "main";
 
 #define POST_INIT_STACK 8192
 #define CHECKIN_INTERVAL_MS  (4 * 3600 * 1000)  /* 4 hours */
-
-/* Parse "vMAJOR.MINOR-COMMIT-..." into major, minor, commit. Returns true on success. */
-static bool parse_version(const char *s, int *major, int *minor, int *commit)
-{
-    if (!s || s[0] != 'v') return false;
-    char *end;
-    long m = strtol(s + 1, &end, 10);
-    if (end == s + 1 || *end != '.') return false;
-    long mi = strtol(end + 1, &end, 10);
-    if (end == s + 1 || *end != '-') return false;
-    long c = strtol(end + 1, &end, 10);
-    if (end == s + 1) return false;
-    *major = (int)m;
-    *minor = (int)mi;
-    *commit = (int)c;
-    return true;
-}
-
-/* True if (our major, minor, commit) is strictly older than latest. */
-static bool version_older_than(const char *our, const char *latest)
-{
-    int our_major, our_minor, our_commit;
-    int lat_major, lat_minor, lat_commit;
-    if (!parse_version(our, &our_major, &our_minor, &our_commit)) return false;
-    if (!parse_version(latest, &lat_major, &lat_minor, &lat_commit)) return false;
-    if (our_major != lat_major) return our_major < lat_major;
-    if (our_minor != lat_minor) return our_minor < lat_minor;
-    return our_commit < lat_commit;
-}
 
 static void post_init_task(void *arg)
 {
@@ -62,7 +33,7 @@ static void post_init_task(void *arg)
     const char *fw_checksum = NULL;
     network_get_firmware_info(&fw_version, &fw_url, &fw_checksum);
     if (fw_version && fw_version[0] != '\0' && fw_url && fw_url[0] != '\0') {
-        if (version_older_than(REVISION, fw_version)) {
+        if (ota_version_older_than(REVISION, fw_version)) {
             ESP_LOGI(TAG, "revision %s older than latest %s, attempting OTA", REVISION, fw_version);
             if (!ota_update_from_url(fw_url, fw_checksum)) {
                 ESP_LOGW(TAG, "OTA update failed, continuing with current firmware");
@@ -77,7 +48,7 @@ static void post_init_task(void *arg)
         if (network_checkin()) {
             network_get_firmware_info(&fw_version, &fw_url, &fw_checksum);
             if (fw_version && fw_version[0] != '\0' && fw_url && fw_url[0] != '\0') {
-                if (version_older_than(REVISION, fw_version)) {
+                if (ota_version_older_than(REVISION, fw_version)) {
                     ESP_LOGI(TAG, "periodic check: revision %s older than %s, attempting OTA", REVISION, fw_version);
                     if (!ota_update_from_url(fw_url, fw_checksum)) {
                         ESP_LOGW(TAG, "OTA update failed");

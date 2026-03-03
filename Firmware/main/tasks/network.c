@@ -107,6 +107,7 @@ static bool checkin_device(const char *device_id)
         s_token[TOKEN_MAX - 1] = '\0';
     }
     s_fw_version[0] = s_fw_url[0] = s_fw_checksum[0] = '\0';
+    /* Optional firmware block: {} or missing keys mean no OTA; device skips update gracefully. */
     cJSON *fw = cJSON_GetObjectItem(root, "firmware");
     if (fw && cJSON_IsObject(fw)) {
         cJSON *v = cJSON_GetObjectItem(fw, "latest_version");

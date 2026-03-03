@@ -32,6 +32,32 @@ The firmware calls this on every boot after WiFi connect. The server must implem
 }
 ```
 
+**Firmware block (OTA, optional)**
+
+To advertise an OTA update, include a `firmware` object in the check-in response. Omit `firmware` or send `"firmware": {}` when no update is available; the device skips OTA gracefully.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `latest_version` | string | yes* | Version string the device compares to its own (e.g. `v1.0-19-gabc1234`). Format: `vMAJOR.MINOR-COMMIT[-suffix]`. |
+| `url` | string | yes* | Full HTTPS URL of the firmware binary. |
+| `checksum` | string | no | SHA-256 hex of the binary (informational; device uses image validation). |
+
+\* If `firmware` is present, both `latest_version` and `url` must be set for the device to attempt OTA; missing or empty values are treated as “no update”.
+
+**Example with firmware**
+
+```json
+{
+  "api_base": "https://api.aldervon.com",
+  "token": "eyJhbG...",
+  "firmware": {
+    "latest_version": "v1.0-19-gabc1234",
+    "url": "https://api.aldervon.com/firmware/v1.0-19.bin",
+    "checksum": "a1b2c3..."
+  }
+}
+```
+
 The device keeps `api_base` and `token` in RAM for the current session only (not persisted). It check-ins every boot and uses the returned values for authenticated requests until the next reboot.
 
 

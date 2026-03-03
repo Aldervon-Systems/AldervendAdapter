@@ -52,6 +52,7 @@ static void mdb_task(void *arg)
         }
         cJSON_AddStringToObject(root, "device_id", device_id);
         cJSON_AddStringToObject(root, "data", TEST_DATA);
+        cJSON_AddStringToObject(root, "version", REVISION);
         char *body = cJSON_PrintUnformatted(root);
         cJSON_Delete(root);
         if (!body) {

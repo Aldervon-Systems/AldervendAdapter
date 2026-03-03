@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Herder</title>
+</head>
+<body>
+<h1>Cat Herder</h1>
+<h2>Firmware</h2>
+<form id="firmware-form">
+  <input type="file" name="file" accept=".bin" required />
+  <button type="submit">Upload .bin</button>
+  <span id="firmware-status"></span>
+</form>
+<h2>Devices</h2>
+<table id="devices">
+  <thead>
+    <tr><th>Device ID</th><th>Last seen</th><th>Version</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+<h2>Log</h2>
+<textarea id="log" rows="15" cols="80" readonly></textarea>
+<script>
+  const base = (window.location.port === "8001") ? "" : "http://127.0.0.1:8001";
+  const logEl = document.getElementById("log");
+  const devicesBody = document.querySelector("#devices tbody");
+  const statusEl = document.getElementById("firmware-status");
+
+  document.getElementById("firmware-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    statusEl.textContent = "uploading…";
+    try {
+      const r = await fetch(base + "/firmware/upload", { method: "POST", body: fd });
+      const data = await r.json();
+      if (r.ok) {
+        statusEl.textContent = "Uploaded " + (data.filename || "");
+      } else {
+        statusEl.textContent = "Error: " + (data.error || r.status);
+      }
+    } catch (err) {
+      statusEl.textContent = "Error: " + err.message;
+    }
+  });
+
+  function secondsAgo(iso) {
+    if (!iso) return "—";
+    const sec = Math.floor((Date.now() - new Date(iso)) / 1000);
+    if (sec < 60) return sec + "s ago";
+    if (sec < 3600) return Math.floor(sec / 60) + "m ago";
+    if (sec < 86400) return Math.floor(sec / 3600) + "h ago";
+    return Math.floor(sec / 86400) + "d ago";
+  }
+
+  function refreshDevices() {
+    fetch(base + "/devices")
+      .then(r => r.json())
+      .then(devices => {
+        devicesBody.innerHTML = devices.map(d =>
+          `<tr><td>${escapeHtml(d.device_id)}</td><td>${secondsAgo(d.last_seen)}</td><td>${escapeHtml(d.version || "—")}</td></tr>`
+        ).join("");
+      })
+      .catch(() => {});
+  }
+
+  function escapeHtml(s) {
+    const div = document.createElement("div");
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  function refreshLogs() {
+    fetch(base + "/logs")
+      .then(r => r.json())
+      .then(data => { logEl.value = (data.lines || []).join("\n"); })
+      .catch(() => {});
+  }
+
+  refreshDevices();
+  refreshLogs();
+  setInterval(refreshDevices, 2000);
+  setInterval(refreshLogs, 2000);
+</script>
+</body>
+</html>
