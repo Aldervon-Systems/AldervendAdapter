@@ -65,3 +65,17 @@ services:
 volumes:
   cat-herder-data:
 ```
+
+## Publish
+
+For auth, if you use `gh` you can `gh auth token | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin` just remember to have `gh auth refresh -s write:packages`
+
+Build
+```shell
+docker build -t ghcr.io/aldervon-systems/cat-herder:latest .
+```
+
+Push
+```shell
+docker push ghcr.io/aldervon-systems/cat-herder:latest
+```
