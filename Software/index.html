@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat Herder</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <h1>Cat Herder</h1>
@@ -74,7 +75,10 @@
   function refreshLogs() {
     fetch(base + "/logs")
       .then(r => r.json())
-      .then(data => { logEl.value = (data.lines || []).join("\n"); })
+      .then(data => {
+        logEl.value = (data.lines || []).join("\n");
+        logEl.scrollTop = logEl.scrollHeight;
+      })
       .catch(() => {});
   }
 

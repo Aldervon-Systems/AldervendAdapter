@@ -11,6 +11,14 @@ LOG_BUFFER_MAX = 20
 log_buffer = deque(maxlen=LOG_BUFFER_MAX)
 
 
+class SkipPollPathsFilter(logging.Filter):
+    """Don't log GET /devices or GET /logs (polling from the UI)."""
+
+    def filter(self, record):
+        msg = record.getMessage()
+        return "GET /devices " not in msg and "GET /logs " not in msg
+
+
 class BufferHandler(logging.Handler):
     """Capture log records into the last N lines for the UI."""
 
@@ -24,12 +32,14 @@ class BufferHandler(logging.Handler):
 
 def setup_logging():
     handler = BufferHandler()
+    handler.addFilter(SkipPollPathsFilter())
     handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
     root = logging.getLogger()
     root.addHandler(handler)
     root.setLevel(logging.INFO)
-    # Reduce Flask/Werkzeug noise
-    logging.getLogger("werkzeug").setLevel(logging.WARNING)
+    # Send Flask/Werkzeug logs to the buffer too (requests, startup messages)
+    logging.getLogger("werkzeug").setLevel(logging.INFO)
+    logging.getLogger("flask.app").setLevel(logging.INFO)
 
 
 setup_logging()
@@ -50,6 +60,11 @@ def index():
 @web_app.route("/favicon.ico")
 def favicon():
     return "", 204
+
+
+@web_app.route("/style.css")
+def style_css():
+    return send_from_directory(web_app.static_folder, "style.css")
 
 
 @web_app.route("/logs")
@@ -92,11 +107,11 @@ def firmware_upload():
 
 
 def run_api():
-    api_app.run(host="0.0.0.0", port=8000, use_reloader=False)
+    api_app.run(host="0.0.0.0", port=8000, debug=True, use_reloader=False)
 
 
 def run_web():
-    web_app.run(host="0.0.0.0", port=8001, use_reloader=False)
+    web_app.run(host="0.0.0.0", port=8001, debug=True, use_reloader=False)
 
 
 if __name__ == "__main__":

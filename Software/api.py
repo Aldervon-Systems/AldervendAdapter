@@ -8,7 +8,7 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 
 api_app = Flask(__name__)
 logger = logging.getLogger(__name__)
@@ -131,6 +131,19 @@ def device_checkin():
         "firmware": get_latest_firmware(),
     }
     return jsonify(payload)
+
+
+def _allowed_firmware_names() -> set[str]:
+    """Exact set of .bin filenames in the firmware dir. No path, no guessing."""
+    return {p.name for p in FIRMWARE_DIR.glob("*.bin")}
+
+
+@api_app.route("/firmware/<filename>")
+def serve_firmware(filename):
+    """Serve only if filename is exactly one of the .bin files we have. No path, no fallbacks."""
+    if filename not in _allowed_firmware_names():
+        return jsonify({"error": "not found"}), 404
+    return send_from_directory(FIRMWARE_DIR, filename, as_attachment=True, download_name=filename)
 
 
 @api_app.route("/bulk", methods=["POST"])
