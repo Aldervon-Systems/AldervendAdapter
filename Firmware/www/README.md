@@ -3,7 +3,6 @@
 Run `python serve.py [port]` to serve the local test server
 Set firmware `CONFIG_VERSION_BASE_URL` and `CONFIG_CHECKIN_URL` to point here
 
----
 
 ## Check-in (device handshake)
 
@@ -35,7 +34,6 @@ The firmware calls this on every boot after WiFi connect. The server must implem
 
 The device keeps `api_base` and `token` in RAM for the current session only (not persisted). It check-ins every boot and uses the returned values for authenticated requests until the next reboot.
 
----
 
 ## Bulk (MDB data upload)
 
@@ -65,3 +63,11 @@ For bulk data (mostly just to faccilitate a smarter firmware sorting system) the
 
 - **Status:** `200 OK` (or any 2xx). The device treats 2xx as success and continues; non-2xx or connection failure is logged and the task retries after the next interval.
 - **Body:** Optional (e.g. `{}` or a JSON object). I dont do anything with the replied body but replying `{'OK'}` could be nice.
+
+
+# Notes for Joe
+Copy the latest .bin to www
+
+```shell
+cp .pio/build/esp32-c6/firmware.bin www/$(git describe --long --always).bin
+```
