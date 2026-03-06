@@ -55,28 +55,8 @@
 	)
 	(attr board_only exclude_from_pos_files exclude_from_bom)
 	(fp_line
-		(start -4.1 -0.3)
-		(end -3.4 -1)
-		(stroke
-			(width 0.1)
-			(type default)
-		)
-		(layer "F.SilkS")
-		(uuid "a9a714d6-2788-406d-bae0-990bbd0bce42")
-	)
-	(fp_line
-		(start -3.4 -1)
-		(end -3.7 -1)
-		(stroke
-			(width 0.1)
-			(type default)
-		)
-		(layer "F.SilkS")
-		(uuid "051e57ef-8f2b-4d0d-9c47-bdf666dce5cc")
-	)
-	(fp_line
-		(start -3.4 -0.7)
-		(end -3.4 -1)
+		(start -4.1 -0.6)
+		(end -4.1 -0.3)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -85,18 +65,38 @@
 		(uuid "d6c5f37c-3006-4d87-9b84-88952c928d4a")
 	)
 	(fp_line
-		(start 3.3 -1)
-		(end 4 -0.3)
+		(start -4.1 -0.3)
+		(end -3.8 -0.3)
 		(stroke
 			(width 0.1)
 			(type default)
 		)
 		(layer "F.SilkS")
-		(uuid "7f36f139-1156-4f73-864a-e9b341046957")
+		(uuid "051e57ef-8f2b-4d0d-9c47-bdf666dce5cc")
 	)
 	(fp_line
-		(start 3.7 -0.3)
-		(end 4 -0.3)
+		(start -3.4 -1)
+		(end -4.1 -0.3)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "a9a714d6-2788-406d-bae0-990bbd0bce42")
+	)
+	(fp_line
+		(start 3.3 -1)
+		(end 3.3 -0.7)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "f0df4494-8266-4f5c-9dfc-571a764b4dc2")
+	)
+	(fp_line
+		(start 3.6 -1)
+		(end 3.3 -1)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -106,13 +106,13 @@
 	)
 	(fp_line
 		(start 4 -0.3)
-		(end 4 -0.6)
+		(end 3.3 -1)
 		(stroke
 			(width 0.1)
 			(type default)
 		)
 		(layer "F.SilkS")
-		(uuid "f0df4494-8266-4f5c-9dfc-571a764b4dc2")
+		(uuid "7f36f139-1156-4f73-864a-e9b341046957")
 	)
 	(fp_rect
 		(start -5.8 -4)
@@ -176,12 +176,12 @@
 		)
 	)
 	(pad "1" thru_hole circle
-		(at -2.54 -1.7)
+		(at 2.54 -1.7)
 		(size 1.6 1.6)
 		(drill 0.9)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
-		(uuid "c4c95ee2-fd8c-4cf2-a2e5-072d00a70b61")
+		(uuid "eb98fa19-6254-4c77-8cdb-25b6129714e0")
 	)
 	(pad "2" thru_hole circle
 		(at 0 -1.7)
@@ -192,12 +192,12 @@
 		(uuid "daa442af-be85-473e-be00-0a3da149ff85")
 	)
 	(pad "3" thru_hole circle
-		(at 2.54 -1.7)
+		(at -2.54 -1.7)
 		(size 1.6 1.6)
 		(drill 0.9)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
-		(uuid "eb98fa19-6254-4c77-8cdb-25b6129714e0")
+		(uuid "c4c95ee2-fd8c-4cf2-a2e5-072d00a70b61")
 	)
 	(embedded_fonts no)
 	(model "${KIPRJMOD}/Libraries/Aldervon-Libs/3d/K7805M-1000R3-Body.step"
