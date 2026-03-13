@@ -1,0 +1,32 @@
+# ESP32-C6 Mini target
+CONFIG_IDF_TARGET="esp32c6"
+
+# Partition table: factory + OTA slots + NVS
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+CONFIG_PARTITION_TABLE_FILENAME="partitions.csv"
+
+# NVS for device ID and WiFi config
+CONFIG_NVS_ENCRYPTION=n
+
+# Flash size (mini 4mb)
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="4MB"
+
+# WiFi (for OTA and later use)
+CONFIG_ESP_WIFI_ENABLED=y
+
+# HTTP client for OTA
+CONFIG_ESP_HTTP_CLIENT_ENABLE_HTTPS=y
+
+# OTA
+CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=n
+
+# Log level
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+
+# OTA / WiFi (override in menuconfig for real use)
+CONFIG_WIFI_SSID=""
+CONFIG_WIFI_PASSWORD=""
+CONFIG_VERSION_BASE_URL="https://api.aldervon.com/device/version"
+CONFIG_CHECKIN_URL="https://api.aldervon.com/device/checkin"

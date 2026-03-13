@@ -1,0 +1,7 @@
+.local
+__pycache__
+*.pyc
+.python-version
+.env
+.git
+.gitignore

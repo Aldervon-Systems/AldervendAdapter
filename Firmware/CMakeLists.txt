@@ -1,0 +1,6 @@
+# AldervendAdapter Firmware - ESP32-C6 Mini
+# ESP-IDF project with OTA and device identity
+
+cmake_minimum_required(VERSION 3.16)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(aldervend_adapter)
